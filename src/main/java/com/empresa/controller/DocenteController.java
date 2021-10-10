@@ -6,15 +6,19 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.empresa.entity.Docente;
+import com.empresa.entity.FiltroDocente;
 import com.empresa.service.DocenteService;
 import com.empresa.util.Constantes;
 
@@ -51,4 +55,115 @@ public class DocenteController {
 		return ResponseEntity.ok(salida);
 	}
 
+	@GetMapping("/porDni/{paramDni}")
+
+	@ResponseBody
+
+	public ResponseEntity<List<Docente>> listaPorDni(@PathVariable("paramDni")String dni) {
+
+		List<Docente> lista = docenteService.listaDocentePorDni(dni);
+
+		return ResponseEntity.ok(lista);
+
+	}
+	
+	@GetMapping("/porNombre/{paramNombre}")
+	@ResponseBody
+
+	public ResponseEntity<List<Docente>> listaPorNombre(@PathVariable("paramNombre")String nombre) {
+
+		List<Docente> lista = docenteService.listaDocentePorNombre(nombre);
+
+		return ResponseEntity.ok(lista);
+
+	}
+	/*
+	@GetMapping("/porDniNombre/{paramDni}/{paramNombre}")
+	@ResponseBody
+
+	public ResponseEntity<List<Docente>> listaPorDniNombre(@PathVariable("paramDni")String dni,
+			@PathVariable("paramNombre")String nombre) {
+
+		List<Docente> lista = docenteService.listaDocentePorDniNombre(dni, nombre);
+
+		return ResponseEntity.ok(lista);
+
+	}
+	*/
+	@GetMapping("/porDniNombre/{paramDni}/{paramNombre}")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> listaPorDniNombreSimple(	@PathVariable("paramDni")String dni,@PathVariable("paramNombre")String nombre) {
+		Map<String, Object> salida = new HashMap<String, Object>();
+
+		List<Docente> lista = docenteService.listaDocentePorDniNombre(dni, "%"+ nombre+"%");
+
+		if (CollectionUtils.isEmpty(lista)) {
+			salida.put("mensaje", "No exite datos para consulta");	
+
+		}else {
+
+			salida.put("mensaje", "La consulta tiene " + lista.size() + " elementos");	
+
+			salida.put("lista", lista);
+
+		}
+		return ResponseEntity.ok(salida);
+
+	}
+	
+	@GetMapping("/porDniNombreConParametros")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> listaPorDniNombreConParametros(	@RequestParam(required = false) String dni,@RequestParam(required = false) String nombre) {
+		Map<String, Object> salida = new HashMap<String, Object>();
+
+		List<Docente> lista = docenteService.listaDocentePorDniNombre(dni, "%"+ nombre+"%");
+
+		if (CollectionUtils.isEmpty(lista)) {
+			salida.put("mensaje", "No exite datos para consulta");	
+
+		}else {
+
+			salida.put("mensaje", "La consulta tiene " + lista.size() + " elementos");	
+
+			salida.put("lista", lista);
+
+		}
+		return ResponseEntity.ok(salida);
+
+	}
+	
+	@GetMapping("/porDniNombreConJSON")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> listaPorDniNombreConJSON(@RequestBody FiltroDocente filtro) {
+
+		Map<String, Object> salida = new HashMap<String, Object>();
+		try {
+
+			filtro.setNombre("%"+filtro.getNombre()+"%");
+
+			List<Docente> lista = docenteService.listaPorFiltro(filtro);
+
+			if (CollectionUtils.isEmpty(lista)) {
+
+				salida.put("mensaje", "No exite datos para consulta");	
+
+			}else {
+
+				salida.put("mensaje", "La consulta tiene " + lista.size() + " elementos");	
+
+				salida.put("lista", lista);
+
+			}
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+			salida.put("mensaje", "Error " + e.getMessage());
+
+		}
+
+		return ResponseEntity.ok(salida);
+
+	}
 }

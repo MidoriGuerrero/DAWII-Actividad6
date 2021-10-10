@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.empresa.entity.Docente;
+import com.empresa.entity.FiltroDocente;
 import com.empresa.repository.DocenteRepository;
 
 @Service
@@ -24,4 +25,29 @@ public class DocenteServiceImpl implements DocenteService {
 		return repository.save(obj);
 	}
 
+	@Override
+
+	public List<Docente> listaDocentePorDni(String dni) {
+
+		return repository.findByDni(dni);
+
+	}
+
+	@Override
+	public List<Docente> listaDocentePorNombre(String nombre) {
+		return repository.listarDocentePorNombre(nombre);
+	}
+
+	@Override
+	public List<Docente> listaDocentePorDniNombre(String dni, String nombre) {
+		return repository.listarDocentePorDniNombre(dni, nombre);
+	}
+	
+	@Override
+
+	public List<Docente> listaPorFiltro(FiltroDocente filtro) {
+
+		return repository.listaPorFiltro(filtro);
+
+	}
 }
